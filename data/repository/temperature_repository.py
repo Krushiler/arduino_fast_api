@@ -4,7 +4,7 @@ from typing import List
 
 class TemperatureRepository:
     def __init__(self, filename: str):
-        self._conn = sql.connect(filename)
+        self._conn = sql.connect(filename, check_same_thread=False)
 
     async def add_temperature(self, temperature: float, location: str | None):
         cur = self._conn.cursor()
