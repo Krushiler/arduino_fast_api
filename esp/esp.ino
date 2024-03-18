@@ -5,6 +5,8 @@
 const char* ssid = "Krushiler";
 const char* password = "password";
 
+WiFiClient wifiClient;
+
 void setup() {
   Serial.begin(115200);
   WiFi.begin(ssid, password);
@@ -18,17 +20,18 @@ void setup() {
 }
 
 float getAverageTemperature(const String& payload) {
-  StaticJsonDocument<200> doc;
+  DynamicJsonDocument doc(1024);
   deserializeJson(doc, payload);
 
   if (doc.containsKey("temperatures")) {
     float sum = 0;
     int count = 0;
-    for (const auto& value : doc["temperatures"].as<JsonArray>()) {
+    JsonArray temperatures = doc["temperatures"];
+    for (JsonVariant value : temperatures) {
       sum += value.as<float>();
       count++;
     }
-    return sum / count;
+    return count > 0 ? sum / count : 0;
   } else {
     Serial.println("Key 'temperatures' not found in received data");
     return 0;
@@ -36,29 +39,24 @@ float getAverageTemperature(const String& payload) {
 }
 
 void send_post_request(float temperature) {
-  WiFiClient client;
   HTTPClient http;
 
-  http.begin(client, "http://192.168.48.110:5000/temperature");
-  http.addHeader("Content-Type", "application/json");
-
-  StaticJsonDocument<200> doc;
+  DynamicJsonDocument doc(200);
   doc["temperature"] = temperature;
-  doc["location"] = "home";
+  doc["location"] = "ru";
 
   String json;
   serializeJson(doc, json);
 
+  http.begin(wifiClient, "http://172.20.10.10:5000/temperature");
+  http.addHeader("Content-Type", "application/json");
+
   int httpCode = http.POST(json);
-  if (httpCode > 0) {
-    if (httpCode == HTTP_CODE_OK) {
-      Serial.println("POST request sent successfully");
-    } else {
-      Serial.print("Error sending POST request, HTTP code: ");
-      Serial.println(httpCode);
-    }
+  if (httpCode == HTTP_CODE_OK) {
+    Serial.println("POST request sent successfully");
   } else {
-    Serial.println("Error: connection failed");
+    Serial.print("Error sending POST request, HTTP code: ");
+    Serial.println(httpCode);
   }
 
   http.end();
@@ -67,12 +65,11 @@ void send_post_request(float temperature) {
 void loop() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
-    WiFiClient client;
 
-    http.begin(client, "http://192.168.48.110:5000/temperature/all?location=home");
+    http.begin(wifiClient, "http://172.20.10.10:5000/temperature/all?location=ru");
     int httpCode = http.GET();
 
-    if (httpCode > 0) {
+    if (httpCode == HTTP_CODE_OK) {
       String payload = http.getString();
       Serial.println(payload);
 
