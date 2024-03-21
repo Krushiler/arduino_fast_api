@@ -1,1 +1,1 @@
-DB_FILE_NAME = 'temperature.db'
+DB_FILE_NAME = 'arduino.db'
