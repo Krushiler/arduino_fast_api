@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import APIRouter, Depends
 
-from api.led.schemes import SetActiveConfigRequest, CreateConfigRequest
+from data.api.led.schemes import SetActiveConfigRequest, CreateConfigRequest
 from di.di import get_led_repository
 from domain.led_configuration import LedConfiguration
 

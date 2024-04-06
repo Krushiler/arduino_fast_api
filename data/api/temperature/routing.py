@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from api.temperature.schemes import GetTemperatureResponse, AddTemperatureRequest
+from data.api.temperature.schemes import GetTemperatureResponse, AddTemperatureRequest
 from di.di import get_temperature_repository
 
 router = APIRouter()
