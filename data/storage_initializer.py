@@ -14,14 +14,27 @@ def initialize_storage(filename: str):
 
     cur.execute('''CREATE TABLE IF NOT EXISTS led_configurations (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    value TEXT NOT NULL
+                    value TEXT NOT NULL,
+                    user_id INTEGER
                 )''')
 
     cur.execute('''CREATE TABLE IF NOT EXISTS active_led_configurations (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     config_id INTEGER,
-                    device_id INTEGER NOT NULL
+                    device_id TEXT NOT NULL
                 )''')
+
+    cur.execute('''CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    login TEXT,
+                    password TEXT
+                )''')
+
+    cur.execute('''CREATE TABLE IF NOT EXISTS userDevices (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER,
+                    device_id TEXT
+    )''')
 
     conn.commit()
     cur.close()
