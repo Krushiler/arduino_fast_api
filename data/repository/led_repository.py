@@ -31,7 +31,7 @@ class LedRepository:
             (str(config_id), str(device_id)),
         )
         self._conn.commit()
-        config = await self.get_active_config(device_id)
+        config = await self.get_config_by_id(config_id)
         self._led_mqtt.publish_led_config(config.value, device_id)
 
     async def get_config_by_id(self, config_id: int) -> LedConfiguration:

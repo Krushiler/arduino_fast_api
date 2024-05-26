@@ -1,3 +1,4 @@
+import random
 from typing import List
 
 from fastapi import APIRouter, Depends
@@ -42,3 +43,25 @@ async def get_active_led_configuration(device_id: str, repository=Depends(get_le
 @router.post("", response_model=LedConfiguration)
 async def create_led_configuration(request: CreateConfigRequest, repository=Depends(get_led_repository)):
     return await repository.add_config(request.value, request.user_id)
+
+
+@router.get('/generate')
+def generate_color_combination(pixel_count: int) -> str:
+    colors = list()
+    pixel_color = random.randint(1, 3)
+    value = random.randint(0, 120)
+    if len(str(value)) == 2:
+        value = "0" + str(value)
+    if len(str(value)) == 1:
+        value = "00" + str(value)
+    series = (255 - int(value)) // pixel_count
+    value = int(value)
+    for i in range(pixel_count):
+        value += series
+        if pixel_color == 1:
+            colors.append(str(value) + "000000")  # red
+        if pixel_color == 2:
+            colors.append("000" + str(value) + "000")  # green
+        if pixel_color == 3:
+            colors.append("000000" + str(value))  # blue
+    return ''.join(colors)
